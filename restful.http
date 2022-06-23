@@ -1,0 +1,43 @@
+//Base Url
+@BASE_URL = http://localhost:3000/api/users
+
+
+//GETs
+
+GET {{BASE_URL}}
+
+
+
+###
+GET {{BASE_URL}}/62b456883d8ced487c0011d5
+
+
+###
+POST {{BASE_URL}}
+Content-Type: application/json
+
+{
+    "name": "sasa",
+    "userName" :"kasaaya",
+    "email" : "kaasya@gmail.com",
+    "password" : "4565789"
+}
+
+//erlencode ile gönderim için
+###
+POST {{BASE_URL}}
+Content-Type: application/x-www-form-urlencoded
+
+name=Muhammed&userName=Kaysaasa&email=sasa@gmail.com&password=456dsd
+
+
+###
+PATCH {{BASE_URL}}/62b456883d8ced487c0011d5
+Content-Type: application/json
+
+{
+    "name" :"Yeni isim"
+}
+
+###
+DELETE {{BASE_URL}}/62b46566d7c2b80e903211fa
