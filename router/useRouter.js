@@ -83,5 +83,15 @@ router.delete("/:id", async (req, res, next) => {
   }
 });
 
+// LOGIN
+router.post("/login", async (req, res, next) => {
+  try {
+    const user = await User.loginAccount(req.body.email, req.body.password);
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
 //EXPORTS
 module.exports = router;

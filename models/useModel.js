@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const Joi = require("joi");
+const createError = require("http-errors");
+const bcrypt = require("bcrypt");
 
 const userSchema = new Schema(
   {
@@ -38,18 +40,20 @@ const userSchema = new Schema(
   { collection: "users" }
 );
 
+const schema = Joi.object({
+  name: Joi.string().min(2).max(30).trim(),
+  userName: Joi.string().min(3).max(30).trim(),
+  email: Joi.string().trim().email(),
+  password: Joi.string().trim(),
+});
+
 // using joi Validation with create a schema methods :)
 // that's goal is validate objects data before database. Also database has a validation system in itself
 // our method name will be joiValidation
 // never use arrow function because of bidning this keyword
 //moelden önce bu kodları kullanmalıyız ki ilk bu kodlar valdation yapsın diye
 userSchema.methods.joiValidation = function (userObject) {
-  const schema = Joi.object({
-    name: Joi.string().min(2).max(30).trim().required(),
-    userName: Joi.string().min(3).max(30).trim().required(),
-    email: Joi.string().trim().email().required(),
-    password: Joi.string().trim().required(),
-  });
+  schema.required(); // varolan joi schemasına extra tüm alanalra reqired ekler
   return schema.validate(userObject);
 };
 
@@ -65,6 +69,29 @@ userSchema.methods.toJSON = function () {
   delete user.__v;
 
   return user;
+};
+
+// for Login
+userSchema.statics.loginAccount = async (email, password) => {
+  const { error, value } = schema.validate({ email, password });
+  if (error) {
+    throw createError(error);
+  }
+
+  const user = await User.findOne({ email: email });
+
+  if (!user) {
+    // eğer kullanıcı yoksa
+    throw createError(400, "Email veya Şifre hatalı");
+  } else {
+    console.log("Else içerisindeyiz");
+    const passwordChecking = await bcrypt.compare(password, user.password);
+    if (!passwordChecking) {
+      throw createError(400, "Email veya Şifre hatalı");
+    } else {
+      return user;
+    }
+  }
 };
 
 // lets create a model from UserSchema

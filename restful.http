@@ -17,10 +17,20 @@ POST {{BASE_URL}}
 Content-Type: application/json
 
 {
-    "name": "Yakops",
-    "userName" :"aavaccsasdaskasaaysasa",
-    "email" : "kdsbaaccasaasadscsya@gmail.com",
-    "password" : "4565789"
+    "name": "yakusasasp",
+    "userName" :"kasasaayali",
+    "email" : "sasasasa@gmail.com",
+    "password" : "123456"
+}
+
+// LOGIN
+###
+POST {{BASE_URL}}/login
+Content-Type: application/json
+
+{
+    "email" : "ykpkaya@gmail.com",
+    "password" : "123456"
 }
 
 //erlencode ile gönderim için
