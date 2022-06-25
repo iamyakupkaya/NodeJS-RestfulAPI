@@ -2,6 +2,7 @@
 const router = express.Router(); */
 const router = require("express").Router();
 const User = require("../models/useModel");
+const createError = require("http-errors");
 
 //GETs
 router.get("/", async (req, res) => {
@@ -28,6 +29,9 @@ router.post("/", async (req, res) => {
 
 // UPDATE - PATCH
 router.patch("/:id", async (req, res) => {
+  // kullanıcı şifresini güncellemeye erişemesin diye veritabanı üzerinden gelen değeri siliyorum
+  delete req.body.password;
+
   const result = await User.findByIdAndUpdate(
     { _id: req.params.id },
     req.body,
@@ -42,7 +46,7 @@ router.patch("/:id", async (req, res) => {
 });
 
 // DELETE
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", async (req, res, next) => {
   try {
     const result = await User.findByIdAndDelete({ _id: req.params.id });
     if (result) {
@@ -50,10 +54,20 @@ router.delete("/:id", async (req, res) => {
         message: `${req.params.id} idli kullanıcı silicenecektir`,
       });
     } else {
-      return res.status(404).json({ message: "Kullanıcı bulunamadı" });
+      console.log("ELSİN İÇİNDEYİZ");
+      /* const hataNesnesi = new Error("BAK HATA");
+      hataNesnesi.hataKodu = 404;
+      throw hataNesnesi; */
+      //Aşağıdaki hata id tipinin doğru ama bulunamadığı zaman yollacak hata
+      throw createError(404, "Kullanıcı bulunamadı :(");
+      //yukarıdaki hataNesnesini fırlatarak catch de yakadım ve middleware gönderdim
+      //return res.status(404).json({ message: "Kullanıcı bulunamadı" });
     }
   } catch (error) {
-    console.log("Kullanıcı silerken hata oluştu: " + error);
+    next(createError(400, error));
+    //nextten sonraki kodlar da çalışır :))
   }
 });
+
+//EXPORTS
 module.exports = router;
