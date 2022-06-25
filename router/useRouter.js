@@ -1,5 +1,6 @@
 /* const express = require("express");
 const router = express.Router(); */
+const bcrypt = require("bcrypt");
 const router = require("express").Router();
 const User = require("../models/useModel");
 const createError = require("http-errors");
@@ -17,11 +18,20 @@ router.get("/:id", async (req, res) => {
 });
 
 // POSTs
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
   try {
-    const addUser = new User(req.body);
-    const sonuc = await addUser.save();
-    res.json(sonuc);
+    const addingUser = new User(req.body);
+    addingUser.password = await bcrypt.hash(addingUser.password, 10);
+    // şifrenin verdiğimiz şifre ile uyuşup uyuşmadığını bulmak için
+    //await bcrypt.compare(şifremiz, hashKODU) şeklinde kullanabilirz. bu bize true ya da false döner.
+    // şifre hashKodu ile eşleşiyorsa true, eşleşmiyorsa false değer döner
+    const { error, value } = addingUser.joiValidation(req.body);
+    if (error) {
+      next(error);
+    } else {
+      const result = await addingUser.save();
+      res.json(result);
+    }
   } catch (err) {
     console.log("We have an error: " + err);
   }
@@ -30,7 +40,11 @@ router.post("/", async (req, res) => {
 // UPDATE - PATCH
 router.patch("/:id", async (req, res) => {
   // kullanıcı şifresini güncellemeye erişemesin diye veritabanı üzerinden gelen değeri siliyorum
-  delete req.body.password;
+  //delete req.body.password;
+
+  if (req.body.hasOwnProperty("password")) {
+    req.body.password = await bcrypt.hash(req.body.password, 10);
+  }
 
   const result = await User.findByIdAndUpdate(
     { _id: req.params.id },

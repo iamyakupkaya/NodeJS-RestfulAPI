@@ -17,9 +17,9 @@ POST {{BASE_URL}}
 Content-Type: application/json
 
 {
-    "name": "sasa",
-    "userName" :"kasaaya",
-    "email" : "kaasya@gmail.com",
+    "name": "Yakops",
+    "userName" :"aavaccsasdaskasaaysasa",
+    "email" : "kdsbaaccasaasadscsya@gmail.com",
     "password" : "4565789"
 }
 
@@ -32,11 +32,12 @@ name=Muhammed&userName=Kaysaasa&email=sasa@gmail.com&password=456dsd
 
 
 ###
-PATCH {{BASE_URL}}/62b456883d8ced487c0011d5
+PATCH {{BASE_URL}}/62b6eae8ed84010d049690f7
 Content-Type: application/json
 
 {
-    "name" :"Yeni isim"
+    "name" :"Yeni isim",
+    "password": "Buyenisifre"
 }
 
 ###
