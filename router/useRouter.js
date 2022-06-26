@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const router = require("express").Router();
 const User = require("../models/useModel");
 const createError = require("http-errors");
+const authMiddleware = require("../middleware/authMiddleware");
 
 //GETs
 router.get("/", async (req, res) => {
@@ -11,10 +12,22 @@ router.get("/", async (req, res) => {
   res.json(allUsers);
 });
 
-router.get("/:id", async (req, res) => {
+/* router.get("/:id", async (req, res) => {
   const user = await User.find({ _id: req.params.id });
   console.log(req.params.id);
   res.json(user);
+}); */
+
+// LOGIN WITH JSON WEB TOKEN JWT
+//burada bir middleware kullanıyoruz önce middleware uğrayacak sonra callback fonksiyonuna geçecek
+// eğer birden fazla sırasıyla middleware uğraması gerekiyorsa [mid1, mid2] şeklinde array içinde vermemiz lazım
+//ÖNEMLİ..! her middleware bir sonraki middleware ile ilişkilidiir yani,
+//... ilk middleware request parametresini kullanarak birşeyler eklediysek birsonraki
+// ...midlleware de onu kullanabiliriz. Ama respnse dersek o middleware oraya sonlanır.
+router.get("/me", authMiddleware, async (req, res, next) => {
+  //önce middleware çalışacak sonra buradaki callback çalışacak
+  console.log("BURADAYIZ 2");
+  next();
 });
 
 // POSTs
@@ -87,7 +100,8 @@ router.delete("/:id", async (req, res, next) => {
 router.post("/login", async (req, res, next) => {
   try {
     const user = await User.loginAccount(req.body.email, req.body.password);
-    res.json(user);
+    const token = await user.generateToken();
+    res.json({ user, token: token });
   } catch (error) {
     next(error);
   }

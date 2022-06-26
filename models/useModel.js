@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 const Joi = require("joi");
 const createError = require("http-errors");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new Schema(
   {
@@ -69,6 +70,17 @@ userSchema.methods.toJSON = function () {
   delete user.__v;
 
   return user;
+};
+
+// JSON Web Token
+userSchema.methods.generateToken = async function () {
+  const user = this;
+  const token = await jwt.sign(
+    { _id: user._id, email: user.email, aktif: true },
+    "mysecretkey",
+    { expiresIn: "1h" }
+  ); // this method generate a token
+  return token;
 };
 
 // for Login
